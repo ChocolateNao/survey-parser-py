@@ -1,10 +1,10 @@
 # Это конфиг, тут настройки
 
 # Путь к директории с таблицами
-sheet_dir = './sheets/'
+SHEET_DIR = './sheets/'
 
 # Название исходной таблицы
-sheet_name_init = 'ИЛТ Опрос (итоговый) 1 курс (Ответы).xlsx'
+SHEET_NAME_INIT = 'test_input.xlsx'
 
 # Название таблицы, в которую будут записываться обработанные данные.
-sheet_target_name = 'Новая таблица.xlsx'
+SHEET_NAME_TARGET = 'test_target.xlsx'
