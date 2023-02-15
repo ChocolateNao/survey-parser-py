@@ -4,7 +4,7 @@ from utils.regex import regex_brackets, regex_teacher_name
 
 def get_header_data():
     """
-    Returns two-dimensional list [[column_name, column_index], [column_name, column_index]...]
+    :return: two-dimensional list [[column_name, column_index], [column_name, column_index]...]
     """
     header_data = []
     max_column_init_sheet = init_sheet_max_column(0)
@@ -23,7 +23,7 @@ def get_header_data():
 
 def get_header_data_raw():
     """
-    Printing raw strings of header names directly into the terminal
+    :return: Printing raw strings of header names directly into the terminal
     """
     max_column_init_sheet = init_sheet_max_column(0)
     init_sheet_obj = load_init_sheet_by_id(0)
@@ -37,7 +37,7 @@ def get_header_data_raw():
 
 def get_subjects():
     """
-    Returns an array of subjects
+    :return: an array of subjects
     """
     header_data = get_header_data()
     regex_match = []
@@ -59,7 +59,7 @@ def get_subjects():
 
 def get_teachers():
     """
-    Returns an array of teachers
+    :return: an array of teachers
     """
     header_data = get_header_data()
     regex_match = []
@@ -75,3 +75,17 @@ def get_teachers():
 
 def get_questions():
     pass
+
+
+def get_teacher_related_questions(teacher_name):
+    """
+    :param teacher_name: the SINGLE name of a teacher, could be from get_teachers()
+    :return: a list of question associated with the teacher and their indexes in the table [[column_name, column_index], [column_name, column_index]...]
+    """
+    header_data = get_header_data()
+    questions = []
+    for teacher_question in header_data:
+        if teacher_name in teacher_question[0]:
+            questions.append(teacher_question)
+    return questions
+
