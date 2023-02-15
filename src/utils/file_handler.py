@@ -5,6 +5,11 @@ import config
 
 
 def ensure_file_sheet(directory: str, filename: str):
+    """
+    :param directory: Path to the .xlsx file
+    :param filename: Name of the .xlsx file
+    :return:
+    """
     try:
         if os.path.exists(directory):
             if os.path.isfile(os.path.join(directory, filename + '' if filename.endswith('.xlsx') else filename + '.xlsx')):
