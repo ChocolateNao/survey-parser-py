@@ -1,7 +1,7 @@
 import re
 
 from utils.constants import init_sheet_max_column, load_init_sheet_by_id
-from utils.regex import regex_braces_find, regex_name_find
+from utils.regex import regex_braces_find, regex_name_find, regex_remove_braces
 
 
 def get_header_data() -> list[list]:
@@ -82,10 +82,9 @@ def get_teachers() -> list:
             teachers_counter += 1
 
     teachers_result = []
-    braces = r'[\[\]]'
     for teacher in regex_match:
         teacher_str = teacher[0]
-        teacher_str = re.sub(braces, '', teacher_str)
+        regex_remove_braces(teacher_str)
         teachers_result.append(teacher_str)
 
     print(f"Found {teachers_counter} teachers")
@@ -99,13 +98,13 @@ def get_general_questions():
 def get_teacher_questions(teacher: str) -> list[list]:
     """
     :param teacher: The SINGLE name of a teacher, could be an item from get_teachers()
-    :return: A list[list] of question associated with the teacher and their indexes in the table
+    :return: A list[list] of question associated with the teacher and their column indexes in the table
     [[column_name, column_index], [column_name, column_index]...]
     """
     header_data = get_header_data()
     questions = []
     for teacher_question in header_data:
-        if teacher in teacher_question[0]:
+        if teacher in teacher_question[0]:  # Since two-dimensional array and we don't need index yet, but it'll be there
             questions.append(teacher_question)
 
     return questions
@@ -114,13 +113,13 @@ def get_teacher_questions(teacher: str) -> list[list]:
 def get_subject_questions(subject: str) -> list[list]:
     """
     :param subject: The SINGLE name of a subject, could be an item from get_subjects()
-    :return: A list[list] of question associated with the subject and their indexes in the table
+    :return: A list[list] of question associated with the subject and their column indexes in the table
     [[column_name, column_index], [column_name, column_index]...]
     """
     header_data = get_header_data()
     questions = []
     for question in header_data:
-        if subject in question[0]:  # Since two-dimensional array and we don't need index yet, but it'll be there
+        if subject in question[0]:
             questions.append(question)
 
     return questions

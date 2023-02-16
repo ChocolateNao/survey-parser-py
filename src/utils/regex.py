@@ -1,12 +1,21 @@
 import re
 
 
-def regex_braces_find(input_text):
+def regex_braces_find(input_text: str):
     pattern = re.compile(r"\[[^\]]*]", re.IGNORECASE)
     return pattern.findall(input_text)
 
 
-def regex_name_find(input_text):
-    pattern = re.compile(r"[А-Я][а-я]{1,20}\s[А-Я]\.[А-Я]\.", re.IGNORECASE)
+def regex_parenthesis_find(input_text: str):
+    pattern = re.compile(r"\([^)]*\)", re.IGNORECASE)
     return pattern.findall(input_text)
 
+
+def regex_name_find(input_text: str):
+    pattern = re.compile(r"[А-Я][а-я]{1,30}\s[А-Я]\.[А-Я]\.", re.IGNORECASE)
+    return pattern.findall(input_text)
+
+
+def regex_remove_braces(input_text: str) -> str:
+    braces = r'[\[\]]'
+    return re.sub(braces, '', input_text)
