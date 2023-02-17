@@ -8,7 +8,7 @@ import config
 from sheet_processing import get_teachers, get_header_data, \
     get_dictionary_by_teacher, get_subjects_dict, get_subjects
 from utils.constants import init_sheet_max_row, load_init_sheet_by_id, optional_course_time_spent, \
-    optional_response_info
+    optional_response_info, load_target_sheet_by_id, target_sheet_max_row
 from utils.regex import *
 from utils.utils import to_fixed, replace_strings_with_zero
 
@@ -250,3 +250,26 @@ def write_subject_data():
                     row += 1
 
     workbook_init.save(workbook_path_init)
+
+
+# def fetch_teachers():
+#     sheet_target = load_target_sheet_by_id(1)  # Teachers - id 1, Subjects - id 0
+#     teachers_column = 3
+#     subjects_column = 4
+#     max_row = target_sheet_max_row(1)
+#     subjects_key = []
+#     dictionary =
+#
+#     for row in range(max_row):
+#         cell = sheet_target.cell(row=row, column=subjects_column)
+#         cell_value = cell.value
+#         if cell_value not in subjects_key:  # Subject - key
+#             subjects_key.append(cell_value)
+#
+#     for row in range(max_row):
+#         cell = sheet_target.cell(row=row, column=subjects_column)
+#         cell_value = cell.value
+
+
+
+
