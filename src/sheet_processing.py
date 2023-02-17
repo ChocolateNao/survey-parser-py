@@ -45,10 +45,11 @@ def get_subjects(counter=False) -> int | list[str]:
     """
     header_data = get_header_data()
     regex_match = []
-    for header in header_data:
-        regex_row = regex_braces_find(header[0])
-        if len(regex_row) != 0:
-            regex_match.append(regex_row)
+    if type(header_data) is not None and type(header_data) is not bool:
+        for header in header_data:
+            regex_row = regex_braces_find(header[0])
+            if len(regex_row) != 0:
+                regex_match.append(regex_row)
 
     subjects = []
     subjects_counter = 0
