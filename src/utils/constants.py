@@ -2,6 +2,7 @@ import openpyxl
 # import dotenv
 import config
 
+
 # DO NOT TOUCH
 def load_init_sheet_by_id(sheet_index: int):
     if sheet_index < 0:
@@ -46,7 +47,5 @@ def target_sheet_max_column(sheet_index: int):
     sheet = load_target_sheet_by_id(sheet_index)
     return sheet.max_column
 
-sheet_teachers_header = ['Факультет', 'Курс', 'Гпуппа', 'ФИО преподавателя', 'Дисцилина', 'Тип', 'Количество ответов']
 
-
-
+const_sheet_teachers_header = ['Факультет', 'Курс', 'Группа', 'ФИО преподавателя', 'Дисцилина', 'Тип', 'Количество ответов']

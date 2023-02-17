@@ -1,7 +1,8 @@
 import re
+from typing import Any
 
 from utils.constants import init_sheet_max_column, load_init_sheet_by_id
-from utils.regex import regex_braces_find, regex_name_find, regex_remove_braces
+from utils.regex import regex_braces_find, regex_name_find, regex_braces_remove
 
 
 def get_header_data() -> list[list]:
@@ -37,8 +38,9 @@ def get_header_data_raw():
             print(col)
 
 
-def get_subjects() -> list:
+def get_subjects(counter=False) -> int | list[str]:
     """
+    :param counter: If true, instead, returns subjects count (int)
     :return: An array of subjects
     """
     header_data = get_header_data()
@@ -64,12 +66,15 @@ def get_subjects() -> list:
         subject_str = re.sub(braces, '', subject_str)
         subjects_result.append(subject_str)
 
-    print(f"Found {subjects_counter} subjects")
+    if counter:
+        return subjects_counter
+
     return subjects_result
 
 
-def get_teachers() -> list:
+def get_teachers(counter=False) -> int | list[Any]:
     """
+    :param counter: If true, instead, returns teachers count (int)
     :return: An array of teachers
     """
     header_data = get_header_data()
@@ -84,10 +89,12 @@ def get_teachers() -> list:
     teachers_result = []
     for teacher in regex_match:
         teacher_str = teacher[0]
-        regex_remove_braces(teacher_str)
+        regex_braces_remove(teacher_str)
         teachers_result.append(teacher_str)
 
-    print(f"Found {teachers_counter} teachers")
+    if counter:
+        return teachers_counter
+
     return teachers_result
 
 
@@ -95,22 +102,47 @@ def get_general_questions():
     pass
 
 
-def get_teacher_questions(teacher: str) -> list[list]:
+def get_dictionary_by_subject(header_data: list[list], subjects: list) -> dict:
     """
-    :param teacher: The SINGLE name of a teacher, could be an item from get_teachers()
-    :return: A list[list] of question associated with the teacher and their column indexes in the table
-    [[column_name, column_index], [column_name, column_index]...]
+    :param subjects: A list of subjects
+    :param header_data: A list[list] of [[data, column_index], [data, column_index]...]
+    :return: A dictionary {subject: [data, column_index], [data, column_index]....}
     """
-    header_data = get_header_data()
-    questions = []
-    for teacher_question in header_data:
-        if teacher in teacher_question[0]:  # Since two-dimensional array and we don't need index yet, but it'll be there
-            questions.append(teacher_question)
+    questions = {subject: [] for subject in subjects}
+
+    for item in header_data:
+        match = re.search(r'\((.*?)\)', item[0])
+        if match:
+            subject = match.group(1)
+            if subject in subjects:
+                questions[subject].append(item)
 
     return questions
 
 
-def get_subject_questions(subject: str) -> list[list]:
+def get_dictionary_by_teacher(header_data: list[list], teachers: list) -> dict:
+    """
+    :param teachers: A list of teachers
+    :param header_data: A list[list] of [[data, column_index], [data, column_index]...]
+    :return: A dictionary {teacher}: [data, column_index], [data, column_index]....}
+    """
+    questions = {teacher: [] for teacher in teachers}
+
+    for item in header_data:
+        match = re.search(r'[А-Я][а-я]{1,30}\s[А-Я]\.[А-Я]\.', item[0])
+        if match:
+            teacher = match.group(0)
+            if teacher in teachers:
+                questions[teacher].append(item)
+
+    return questions
+
+
+def get_teacher_subjects(feedback_questions: list):
+    pass
+
+
+def get_subject_feedback(subject: str) -> list[list]:
     """
     :param subject: The SINGLE name of a subject, could be an item from get_subjects()
     :return: A list[list] of question associated with the subject and their column indexes in the table
@@ -123,7 +155,6 @@ def get_subject_questions(subject: str) -> list[list]:
             questions.append(question)
 
     return questions
-
 
 # def merge_teacher(teacher: str) -> list[list]:
 #     """

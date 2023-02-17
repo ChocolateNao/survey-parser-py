@@ -3,9 +3,9 @@ import os
 import openpyxl
 
 import config
-from sheet_processing import get_teacher_questions, get_teachers
-from utils.constants import sheet_teachers_header
-from utils.regex import regex_braces_find, regex_remove_braces
+from sheet_processing import get_dictionary_by_subject, get_teachers, get_subjects, get_header_data
+from utils.constants import const_sheet_teachers_header
+from utils.regex import regex_braces_find, regex_braces_remove
 
 
 def compose_target_subjects_header():
@@ -34,36 +34,38 @@ def compose_target_subjects_header():
 #     6 - 8 > 10
 # Открытые комментарии
 
+def get_teacher_sheet_header() -> list:
+    questions_braces = []
 
-def get_teachers_header(questions_list: list) -> list:
-    header_items = []
-    init_header = questions_list
-    for item in init_header:
-        item = regex_braces_find(item[0])
-        if len(item) != 0:
-            item = regex_remove_braces(item[0])
-            header_items.append(item)
+    subjects_data = get_subjects()
+    teachers_data = get_teachers()
+    header_data = get_header_data()
 
-    return header_items
+    dictionary = get_dictionary_by_subject(header_data, subjects_data)
+    dictionary = dictionary[subjects_data[2]]
+
+    for item in dictionary:
+        for teacher in teachers_data:
+            regex = regex_braces_find(item[0])
+            if teacher in item[0] and regex not in questions_braces:
+                questions_braces.append(regex)
+
+    questions = []
+    for question in questions_braces:
+        question = regex_braces_remove(question[0])
+        questions.append(question)
+
+    return questions
 
 
-# def get_subjects_header(questions_list: list) -> list:
-#     header_items = []
-#
-#     return header_items
-
-
-def compose_target_teachers_header():
+def insert_target_teachers_header():
     try:
         workbook_path = os.path.join(config.WORKBOOK_DIR, config.WORKBOOK_NAME_TARGET)
         workbook = openpyxl.load_workbook(workbook_path)
         worksheet_teachers = workbook[config.TARGET_SHEET_TEACHERS_NAME]
 
-        teachers = get_teachers()
-        teacher_questions = get_teacher_questions(teachers[1])
-
-        header = get_teachers_header(teacher_questions)
-        header = sheet_teachers_header + header + ['Комментарии']
+        header = get_teacher_sheet_header()
+        header = const_sheet_teachers_header + header + ['Комментарии']
 
         for i, col_name in enumerate(header, start=1):
             cell = worksheet_teachers.cell(row=1, column=i)
@@ -73,7 +75,8 @@ def compose_target_teachers_header():
 
         workbook.save(os.path.join(workbook_path))
     except PermissionError as e:
-        print(f"Permission error while working with '{workbook_path}'! The workbook may be opened in another editor\n{e}")
+        print(f"Permission error while writing data in '{workbook_path}'! The current workbook may be opened in "
+              f"another editor\n{e}")
 
 # Факультет
 # Курс
