@@ -33,3 +33,10 @@ def regex_class_type_find(input_text: str):
         return match.group(1)
     else:
         return None
+
+
+def regex_remove_text_in_braces(text: str):
+    pattern = r'\[.*?\]'
+    text_without_braces = re.sub(pattern, '', text)
+
+    return text_without_braces
