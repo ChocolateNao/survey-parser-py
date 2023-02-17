@@ -98,10 +98,6 @@ def get_teachers(counter=False) -> int | list[Any]:
     return teachers_result
 
 
-def get_general_questions():
-    pass
-
-
 def get_dictionary_by_subject(header_data: list[list], subjects: list) -> dict:
     """
     :param subjects: A list of subjects
@@ -138,10 +134,6 @@ def get_dictionary_by_teacher(header_data: list[list], teachers: list) -> dict:
     return questions
 
 
-def get_teacher_subjects(feedback_questions: list):
-    pass
-
-
 def get_subject_feedback(subject: str) -> list[list]:
     """
     :param subject: The SINGLE name of a subject, could be an item from get_subjects()
@@ -156,14 +148,43 @@ def get_subject_feedback(subject: str) -> list[list]:
 
     return questions
 
-# def merge_teacher(teacher: str) -> list[list]:
-#     """
-#     :param teacher: The SINGLE name of a teacher, could be an item from get_teachers()
-#     :return: A list[list] of question associated with the teacher and their indexes in the table
-#     """
-#     header_data = get_header_data()
-#     merged = []
-#     for item in header_data:
-#         if teacher in item[0]:  # Since two-dimensional array and we don't need index yet, but it'll be there
-#             merged.append(item)
-#     return merged
+
+def get_subject_list(last=False) -> list:
+    questions = []
+    header_data = get_header_data()
+    subjects_name = get_subjects()
+    for header_item in header_data:
+        for subject in subjects_name:
+            if subject in header_item:
+                if header_item not in questions:
+                    questions.append(header_item)
+    questions_len = len(questions)
+    last_col = questions[questions_len - 1][1]
+    if last:
+        return questions
+
+    questions = []
+
+    for item in header_data:
+        if last_col >= item[1] >= 4:
+            questions.append(item)
+
+    return questions
+
+
+def get_subjects_dict() -> dict:
+    data = get_subject_list(last=False)
+    subjects = get_subjects()
+
+    questions = {subject: [] for subject in subjects}
+    for item in data:
+        if '[' in item[0]:
+            subject = item[0].split('[')[-1].strip(']')
+        else:
+            subject = item[0]
+        if questions[subject] is not None:
+            questions[subject].append(item)
+        else:
+            questions[subject] = item
+
+    return questions
