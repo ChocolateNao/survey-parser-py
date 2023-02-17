@@ -1,5 +1,18 @@
+import os
+
+import openpyxl
+
+import config
+from sheet_processing import get_dictionary_by_subject, get_teachers, get_subjects, get_header_data
+from utils.constants import const_sheet_teachers_header
+from utils.regex import regex_braces_find, regex_braces_remove
+
+
 def compose_target_subjects_header():
+    workbook = openpyxl.load_workbook(os.path.join(config.WORKBOOK_DIR, config.WORKBOOK_NAME_TARGET))
+    worksheet = workbook.active
     pass
+
 
 # Факультет
 # Курс
@@ -21,9 +34,49 @@ def compose_target_subjects_header():
 #     6 - 8 > 10
 # Открытые комментарии
 
+def get_teacher_sheet_header() -> list:
+    questions_braces = []
 
-def compose_target_teachers_header():
-    pass
+    subjects_data = get_subjects()
+    teachers_data = get_teachers()
+    header_data = get_header_data()
+
+    dictionary = get_dictionary_by_subject(header_data, subjects_data)
+    dictionary = dictionary[subjects_data[2]]
+
+    for item in dictionary:
+        for teacher in teachers_data:
+            regex = regex_braces_find(item[0])
+            if teacher in item[0] and regex not in questions_braces:
+                questions_braces.append(regex)
+
+    questions = []
+    for question in questions_braces:
+        question = regex_braces_remove(question[0])
+        questions.append(question)
+
+    return questions
+
+
+def insert_target_teachers_header():
+    try:
+        workbook_path = os.path.join(config.WORKBOOK_DIR, config.WORKBOOK_NAME_TARGET)
+        workbook = openpyxl.load_workbook(workbook_path)
+        worksheet_teachers = workbook[config.TARGET_SHEET_TEACHERS_NAME]
+
+        header = get_teacher_sheet_header()
+        header = const_sheet_teachers_header + header + ['Комментарии']
+
+        for i, col_name in enumerate(header, start=1):
+            cell = worksheet_teachers.cell(row=1, column=i)
+            cell.value = col_name
+            cell.font = openpyxl.styles.Font(bold=True)
+            cell.alignment = openpyxl.styles.Alignment(horizontal='center')
+
+        workbook.save(os.path.join(workbook_path))
+    except PermissionError as e:
+        print(f"Permission error while writing data in '{workbook_path}'! The current workbook may be opened in "
+              f"another editor\n{e}")
 
 # Факультет
 # Курс
@@ -41,5 +94,3 @@ def compose_target_teachers_header():
 # Комфортная атмосфера на занятиях
 # Использование цифровых инструментов преподавателем
 # Открытые комментарии
-
-
