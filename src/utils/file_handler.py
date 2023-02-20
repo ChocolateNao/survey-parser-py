@@ -13,7 +13,7 @@ def ensure_file_workbook(directory: str, filename: str):
     try:
         if os.path.exists(directory):
             if os.path.isfile(os.path.join(directory, filename + '' if filename.endswith('.xlsx') else filename + '.xlsx')):
-                print(f"File {config.WORKBOOK_NAME_TARGET} exists! Let's roll!")
+                print(f"File '{config.WORKBOOK_NAME_TARGET}' exists! Let's roll!")
             else:
                 create_target_workbook(directory, filename)
                 print("The specified file cannot be found so it was created.")

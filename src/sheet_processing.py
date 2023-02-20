@@ -12,14 +12,18 @@ def get_header_data() -> list[list]:
     header_data = []
     max_column_init_sheet = init_sheet_max_column(0)
     init_sheet_obj = load_init_sheet_by_id(0)
-
-    for col in range(max_column_init_sheet):
-        if col >= 1:
-            header_item = []
-            cell_obj = init_sheet_obj.cell(row=1, column=col)
-            header_item.append(cell_obj.value)
-            header_item.append(col)
-            header_data.append(header_item)
+    try:
+        for col in range(max_column_init_sheet):
+            if col >= 1:
+                header_item = []
+                cell_obj = init_sheet_obj.cell(row=1, column=col)
+                cell_value = cell_obj.value
+                if cell_value is not None and cell_value not in header_item:
+                    header_item.append(cell_value)
+                    header_item.append(col)
+                    header_data.append(header_item)
+    except Exception as e:
+        print(e)
 
     return header_data
 
@@ -46,10 +50,13 @@ def get_subjects(counter=False) -> int | list[str]:
     header_data = get_header_data()
     regex_match = []
     if type(header_data) is not None and type(header_data) is not bool:
-        for header in header_data:
-            regex_row = regex_braces_find(header[0])
-            if len(regex_row) != 0:
-                regex_match.append(regex_row)
+        try:
+            for header in header_data:
+                regex_row = regex_braces_find(header[0])
+                if len(regex_row) != 0:
+                    regex_match.append(regex_row)
+        except Exception as e:
+            print(e)
 
     subjects = []
     subjects_counter = 0
@@ -82,10 +89,15 @@ def get_teachers(counter=False) -> int | list[Any]:
     regex_match = []
     teachers_counter = 0
     for header in header_data:
-        regex_row = regex_name_find(header[0])
-        if len(regex_row) != 0 and regex_row not in regex_match:
-            regex_match.append(regex_row)
-            teachers_counter += 1
+        try:
+            if type(header) is not None and type(header) is not bool:
+                regex_row = regex_name_find(header[0])
+                if len(regex_row) != 0 and regex_row not in regex_match:
+                    regex_match.append(regex_row)
+                    teachers_counter += 1
+        except Exception as e:
+            print(e)
+
 
     teachers_result = []
     for teacher in regex_match:
@@ -180,9 +192,9 @@ def get_subjects_dict() -> dict:
     questions = {subject: [] for subject in subjects}
     for item in data:
         if '[' in item[0]:
-            subject = item[0].split('[')[-1].strip(']')
+            subject = item[0].split('[')[-1].strip(']').strip()
         else:
-            subject = item[0]
+            subject = item[0].strip()
         if questions[subject] is not None:
             questions[subject].append(item)
         else:

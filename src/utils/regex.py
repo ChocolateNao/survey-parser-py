@@ -40,3 +40,11 @@ def regex_remove_text_in_braces(text: str):
     text_without_braces = re.sub(pattern, '', text)
 
     return text_without_braces
+
+
+def regex_find_ognp(text: str):
+    pattern = r'ОГНП\s*\d{1,2}:'
+    match = re.search(pattern, text)
+    if match:
+        return match
+

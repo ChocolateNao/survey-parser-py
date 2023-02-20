@@ -7,15 +7,15 @@ from openpyxl.utils import get_column_letter
 import config
 from sheet_processing import get_teachers, get_header_data, \
     get_dictionary_by_teacher, get_subjects_dict, get_subjects
-from utils.constants import init_sheet_max_row, load_init_sheet_by_id, optional_course_time_spent, \
-    optional_response_info, load_target_sheet_by_id, target_sheet_max_row
+from utils.constants import init_sheet_max_row, load_init_sheet_by_id, OPTIONAL_COURSE_TIME_SPENT, \
+    OPTIONAL_RESPONSE_INFO, load_target_sheet_by_id, target_sheet_max_row
 from utils.regex import *
 from utils.utils import to_fixed, replace_strings_with_zero
 
 
 def load_teacher_feedback(teacher_dict: dict, teacher_name: str) -> tuple[
                                                                         list[int | str | Any], list[int | str | Any]] | \
-                                                                        list[int | str | Any] | None:
+                                                                    list[int | str | Any] | None:
     """
     :param teacher_name: A SINGLE key = teacher name
     :param teacher_dict: get_dictionary_by_teacher(get_header_data(), get_teachers())
@@ -46,6 +46,7 @@ def load_teacher_feedback(teacher_dict: dict, teacher_name: str) -> tuple[
         if len(data_row) > base_len and participants_count not in data_row[10:]:
             data_row.insert(10, participants_count)
 
+        # print(grades_data)
         if len(grades_data) >= 1 and grades_data[0] is not None:
             if type(grades_data[0]) != str:
                 grade_mean = sum(grades_data) / len(grades_data)
@@ -92,9 +93,13 @@ def load_teacher_feedback(teacher_dict: dict, teacher_name: str) -> tuple[
         data_row.insert(0, config_row)
 
     find_subject = regex_parenthesis_find(teacher_list[0][0])
-    find_name = regex_name_find(teacher_list[0][0])
-    data_row.insert(3, find_name[0])
-    data_row.insert(4, find_subject[0][1:][:-1])
+    if find_subject:
+        find_name = regex_name_find(teacher_list[0][0])
+        data_row.insert(3, find_name[0])
+        try:
+            data_row.insert(4, find_subject[0][1:][:-1])
+        except IndexError as e:
+            print(e)
 
     # Optional
     find_type = regex_class_type_find(teacher_list[0][0])
@@ -115,7 +120,7 @@ def write_teacher_data():
     workbook_init = openpyxl.load_workbook(workbook_path_init)
     sheet_init = workbook_init[config.TARGET_SHEET_TEACHERS_NAME]
 
-    teachers = get_teachers(counter=True)
+    # teachers = get_teachers(counter=True)
     row = sheet_init.max_row + 1
     header_data = get_header_data()
     teachers_data = get_teachers()
@@ -167,7 +172,8 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
 
         grades_data = grades_header[1:]
         for grade, i in enumerate(grades_data):
-            if i == 'нет домашних заданий' or grade == 'нет домашних заданий':
+            if i == 'нет домашних заданий' or grade == 'нет домашних заданий' or grade == 'не изучаю' \
+                    or i == 'не изучаю' or i == 'Не изучал' or i == 'не изучал':
                 grades_data = replace_strings_with_zero(grades_data)
 
         participants_count = len(grades_data)
@@ -182,9 +188,10 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
                     data_row.append(avg_grade)
                 else:
                     data_row.append(0)
-            if grades_data[0] == 'да, в начале семестра' or grades_data[0] == 'да, перед промежуточной аттестацией' or \
-                    grades_data[0] == 'нет':
-                response_tuple_1 = optional_response_info
+            if grades_data[0] == 'да, в начале семестра' \
+                    or grades_data[0] == 'да, перед промежуточной аттестацией' \
+                    or grades_data[0] == 'нет' or grades_data[0] == 'Да, в начале семестра':
+                response_tuple_1 = dict.fromkeys(OPTIONAL_RESPONSE_INFO, 0)
 
                 for grade in grades_data:
                     for response in response_tuple_1:
@@ -192,9 +199,10 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
                             response_tuple_1[response] += 1
                 data_row.append(str(response_tuple_1).strip('{}'))
 
-            if grades_data[0] == '0-2' or grades_data[0] == '2-4' or grades_data[0] == '4-6' or grades_data[
-                0] == '6-8' or grades_data[0] == '>10':
-                response_tuple_2 = optional_course_time_spent
+            if grades_data[0] == '0-2' \
+                    or grades_data[0] == '2-4' or grades_data[0] == '4-6' \
+                    or grades_data[0] == '6-8' or grades_data[0] == '>10':
+                response_tuple_2 = dict.fromkeys(OPTIONAL_COURSE_TIME_SPENT, 0)
 
                 for grade in grades_data:
                     for response in response_tuple_2:
@@ -202,12 +210,13 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
                             response_tuple_2[response] += 1
                 data_row.append(str(response_tuple_2).strip('{}'))
 
-            if type(grades_data[0]) == str and grades_data[0] != 'да, в начале семестра' and grades_data[
-                0] != 'да, перед промежуточной аттестацией' and grades_data[0] != 'нет' and grades_data[0] != '0-2' and \
-                    grades_data[0] != '2-4' and grades_data[0] != '4-6' and grades_data[0] != '6-8' and grades_data[
-                0] != '>10' and grades_data[0] != 'нет домашних заданий':
+            if type(grades_data[0]) == str and grades_data[0] != 'да, в начале семестра' \
+                    and grades_data[0] != 'да, перед промежуточной аттестацией' and grades_data[0] != 'нет' \
+                    and grades_data[0] != '0-2' and grades_data[0] != '2-4' \
+                    and grades_data[0] != '4-6' and grades_data[0] != '6-8' \
+                    and grades_data[0] != '>10' and grades_data[0] != 'нет домашних заданий':
                 comments = '; '
-                comments = comments.join(grades_data)
+                comments = comments.join(str(gradee) for gradee in grades_data)
                 data_row.append(comments.strip())
 
     # Always present
@@ -225,7 +234,7 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
     if data_row[-1] != 0:
         return data_row  # [Faculty, Year, Group, Initials, Subject, Recipients count, Grades..., Comments]
     else:
-        return  # Не бейте за эту функцию, дело было в 4 часа утра, когда-нибудь перепишу :(
+        return
 
 
 def write_subject_data():
@@ -252,24 +261,58 @@ def write_subject_data():
     workbook_init.save(workbook_path_init)
 
 
-# def fetch_teachers():
-#     sheet_target = load_target_sheet_by_id(1)  # Teachers - id 1, Subjects - id 0
-#     teachers_column = 3
-#     subjects_column = 4
-#     max_row = target_sheet_max_row(1)
-#     subjects_key = []
-#     dictionary =
-#
-#     for row in range(max_row):
-#         cell = sheet_target.cell(row=row, column=subjects_column)
-#         cell_value = cell.value
-#         if cell_value not in subjects_key:  # Subject - key
-#             subjects_key.append(cell_value)
-#
-#     for row in range(max_row):
-#         cell = sheet_target.cell(row=row, column=subjects_column)
-#         cell_value = cell.value
+def fetch_teachers():
+    sheet_target = load_target_sheet_by_id(1)  # Teachers - id 1, Subjects - id 0
+    teachers_column = 4
+    subjects_column = 5
+    max_row = target_sheet_max_row(1) + 1
+    base_list = []
+    dictionary = {}
+
+    for row in range(max_row):
+        if row >= 2:
+            row_list = []
+            cell_subj = sheet_target.cell(row=row, column=subjects_column)
+            cell_subj_value = cell_subj.value
+
+            if cell_subj_value not in row_list:
+                row_list.append(cell_subj_value)
+            cell_teach = sheet_target.cell(row=row, column=teachers_column)
+            cell_teach_value = cell_teach.value
+
+            if cell_teach_value not in row_list:
+                row_list.append(cell_teach_value)
+
+            base_list.append(row_list)
+
+    for item in base_list:
+        key = item[0]
+        value = item[1:]
+        if key in dictionary:
+            dictionary[key].append(value[0])
+        else:
+            dictionary[key] = [value[0]]
+
+    return dictionary
 
 
+def do_fetch_teachers():
+    dictionary = fetch_teachers()
+    workbook_path_target = os.path.join(config.WORKBOOK_DIR, config.WORKBOOK_NAME_TARGET)
+    workbook_target = openpyxl.load_workbook(workbook_path_target)
+    sheet_target = workbook_target[config.TARGET_SHEET_SUBJECTS_NAME]
+    teachers_column = 4
+    subjects_column = 5
+    max_row = target_sheet_max_row(0) + 1
 
+    for row in range(max_row):
+        if row >= 2:
+            for key in dictionary:
+                cell_subj = sheet_target.cell(row=row, column=subjects_column)
+                cell_subj_value = cell_subj.value
+                if cell_subj_value != '' and key == cell_subj_value:
+                    cell_teach = sheet_target.cell(row=row, column=teachers_column)
+                    key = dictionary[key]
+                    cell_teach.value = str(key).strip('[\']').replace('\'', '')
 
+    workbook_target.save(workbook_path_target)

@@ -4,7 +4,7 @@ import openpyxl
 
 import config
 from sheet_processing import get_dictionary_by_subject, get_teachers, get_subjects, get_header_data, get_subjects_dict
-from utils.constants import const_sheet_teachers_header, const_sheet_subjects_header
+from utils.constants import SHEET_TEACHERS_HEADER, SHEET_SUBJECTS_HEADER
 from utils.regex import regex_braces_find, regex_braces_remove, regex_remove_text_in_braces
 
 
@@ -36,7 +36,7 @@ def insert_target_subjects_header():
         worksheet_subjects = workbook[config.TARGET_SHEET_SUBJECTS_NAME]
 
         header = get_subject_sheet_header()
-        header = const_sheet_subjects_header + header[:-1] + ['Комментарии']
+        header = SHEET_SUBJECTS_HEADER + header[:-1] + ['Комментарии']
 
         for i, col_name in enumerate(header, start=1):
             cell = worksheet_subjects.cell(row=1, column=i)
@@ -108,7 +108,7 @@ def insert_target_teachers_header():
         worksheet_teachers = workbook[config.TARGET_SHEET_TEACHERS_NAME]
 
         header = get_teacher_sheet_header()
-        header = const_sheet_teachers_header + header + ['Комментарии']
+        header = SHEET_TEACHERS_HEADER + header + ['Комментарии']
 
         for i, col_name in enumerate(header, start=1):
             cell = worksheet_teachers.cell(row=1, column=i)
