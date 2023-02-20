@@ -4,7 +4,8 @@ import openpyxl
 
 import config
 from sheet_processing import get_dictionary_by_subject, get_teachers, get_subjects, get_header_data, get_subjects_dict
-from utils.constants import SHEET_TEACHERS_HEADER, SHEET_SUBJECTS_HEADER
+from utils.constants import SHEET_TEACHERS_HEADER, SHEET_SUBJECTS_HEADER, OPTIONAL_RESPONSE_INFO, \
+    OPTIONAL_COURSE_TIME_SPENT
 from utils.regex import regex_braces_find, regex_braces_remove, regex_remove_text_in_braces
 
 
@@ -17,9 +18,17 @@ def get_subject_sheet_header() -> list:
     dictionary = dictionary[subjects_data[2]]
 
     for item in dictionary:
-        regex = regex_remove_text_in_braces(item[0])
+        regex = regex_remove_text_in_braces(item[0]).strip()
         if subjects_data[2] in item[0] and regex not in questions_braces:
-            questions_braces.append(regex.strip())
+            if regex == 'Были ли вы проинформированы о целях курса, его месте в образовательной программе и о критериях оценивания?':
+                for key in OPTIONAL_RESPONSE_INFO.keys():
+                    questions_braces.append('Информирован о целях? - ' + key)
+
+            if regex == 'Сколько часов в неделю (кроме аудиторных) вы тратите на курс?':
+                for key in OPTIONAL_COURSE_TIME_SPENT.keys():
+                    questions_braces.append('Часов на курс - ' + key)
+            else:
+                questions_braces.append(regex)
 
     # questions = []
     # for question in questions_braces:

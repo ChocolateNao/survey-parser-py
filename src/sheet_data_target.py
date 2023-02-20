@@ -197,7 +197,9 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
                     for response in response_tuple_1:
                         if grade == response:
                             response_tuple_1[response] += 1
-                data_row.append(str(response_tuple_1).strip('{}'))
+                for key in response_tuple_1:
+                    data_row.append(response_tuple_1[key])
+                # data_row.append(str(response_tuple_1).strip('{}'))
 
             if grades_data[0] == '0-2' \
                     or grades_data[0] == '2-4' or grades_data[0] == '4-6' \
@@ -208,7 +210,9 @@ def get_subject_feedback(subject_dict: dict, subject_name: str):
                     for response in response_tuple_2:
                         if grade == response:
                             response_tuple_2[response] += 1
-                data_row.append(str(response_tuple_2).strip('{}'))
+                for key in response_tuple_2:
+                    data_row.append(response_tuple_2[key])
+                # data_row.append(str(response_tuple_2).strip('{}'))
 
             if type(grades_data[0]) == str and grades_data[0] != 'да, в начале семестра' \
                     and grades_data[0] != 'да, перед промежуточной аттестацией' and grades_data[0] != 'нет' \
